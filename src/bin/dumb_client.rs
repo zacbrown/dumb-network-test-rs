@@ -60,15 +60,11 @@ fn start_udp_client(client_address_str: &str, server_address_str: &str) {
     println!("Starting UDP client with address {}, connected to {} ...", client_address_str, server_address_str);
 
     let buf = [1; 4096];
-    let mut count_messages = 0usize;
-    loop {
+    for ii in 1..11 {
         let _ = socket.send(&buf)
             .expect("Couldn't send data");
-        count_messages += 1;
-
-        if count_messages % 1000 == 0 {
-            println!("{} messages sent.", count_messages);
-        }
+        println!("sending message {}", ii);
+        std::thread::sleep_ms(1000);
     }
 }
 
@@ -81,15 +77,10 @@ fn start_tcp_client(_client_address_str: &str, server_address_str: &str) {
              server_address_str);
 
     let buf = [1; 16];
-    let mut count_messages = 0usize;
-
-    loop {
-        let _ = stream.write_all(&buf).expect("couldn't send to remote address");
-        count_messages += 1;
-
-        if count_messages % 1000 == 0 {
-            println!("{} messages sent.", count_messages);
-            std::thread::sleep_ms(1000);
-        }
+    for ii in 1..11 {
+        let _ = stream.write_all(&buf)
+            .expect("couldn't send to remote address");
+        println!("sending message {}", ii);
+        std::thread::sleep_ms(1000);
     }
 }
