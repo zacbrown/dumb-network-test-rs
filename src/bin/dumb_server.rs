@@ -1,5 +1,6 @@
 #[macro_use] extern crate clap;
-use std::net::{SocketAddr, UdpSocket};
+use std::net::{SocketAddr, TcpListener, UdpSocket};
+use std::io::Read;
 
 arg_enum! {
     #[derive(Clone, Debug)]
@@ -34,6 +35,8 @@ fn main() {
     let protocol = value_t!(matches.value_of("protocol"), Protocol).unwrap_or_else(|e| e.exit());
     let address_str = matches.value_of("address").unwrap();
 
+    println!("Current process id: {}", std::process::id());
+
     match protocol {
         Protocol::Udp => start_udp_server(address_str),
         Protocol::Tcp => start_tcp_server(address_str),
@@ -59,4 +62,28 @@ fn start_udp_server(address_str: &str) {
     }
 }
 
-fn start_tcp_server<S: AsRef<str>>(address_str: S) {}
+fn start_tcp_server(address_str: &str) {
+    let address: SocketAddr = address_str.parse().expect("invalid socket address");
+    let listener = TcpListener::bind(address).expect("couldn't bind to address");
+    let mut buf = vec![0u8; 16];
+    let mut count_messages = 0usize;
+
+    println!("Starting TCP server listening on {} ...", address);
+
+    for stream in listener.incoming() {
+        match stream {
+            Ok(mut stream) => {
+                let src_addr = stream.peer_addr().expect("couldn't get address of source");
+                let number_of_bytes = stream.read_to_end(&mut buf).expect("unable to read from stream");
+                count_messages += 1;
+
+                println!("poot");
+                if count_messages % 1000 == 0 {
+                    println!("{} messages processed. Current: src_addr={},num_bytes={}", count_messages, src_addr, number_of_bytes);
+
+                }
+            }
+            Err(_) => {}
+        }
+    }
+}

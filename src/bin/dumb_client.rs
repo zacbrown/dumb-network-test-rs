@@ -1,5 +1,6 @@
 #[macro_use] extern crate clap;
-use std::net::{SocketAddr, UdpSocket};
+use std::net::{SocketAddr, TcpStream, UdpSocket};
+use std::io::Write;
 
 arg_enum! {
     #[derive(Clone, Debug)]
@@ -43,6 +44,8 @@ fn main() {
     let client_address_str = matches.value_of("client-address").unwrap();
     let server_address_str = matches.value_of("server-address").unwrap();
 
+    println!("Current process id: {}", std::process::id());
+
     match protocol {
         Protocol::Udp => start_udp_client(client_address_str, server_address_str),
         Protocol::Tcp => start_tcp_client(client_address_str, server_address_str),
@@ -59,7 +62,7 @@ fn start_udp_client(client_address_str: &str, server_address_str: &str) {
     let buf = [1; 4096];
     let mut count_messages = 0usize;
     loop {
-        let number_of_bytes = socket.send(&buf)
+        let _ = socket.send(&buf)
             .expect("Couldn't send data");
         count_messages += 1;
 
@@ -69,4 +72,24 @@ fn start_udp_client(client_address_str: &str, server_address_str: &str) {
     }
 }
 
-fn start_tcp_client(client_address_str: &str, server_address_str: &str) {}
+fn start_tcp_client(_client_address_str: &str, server_address_str: &str) {
+    let server_address: SocketAddr = server_address_str.parse().expect("invalid socket address");
+    let mut stream = TcpStream::connect(server_address).expect("couldn't bind to address");
+
+    println!("Starting UDP client with address {}, connected to {} ...",
+             stream.local_addr().expect("couldn't get local address"),
+             server_address_str);
+
+    let buf = [1; 16];
+    let mut count_messages = 0usize;
+
+    loop {
+        let _ = stream.write_all(&buf).expect("couldn't send to remote address");
+        count_messages += 1;
+
+        if count_messages % 1000 == 0 {
+            println!("{} messages sent.", count_messages);
+            std::thread::sleep_ms(5000);
+        }
+    }
+}
