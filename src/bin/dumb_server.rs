@@ -77,7 +77,7 @@ fn start_tcp_server(address_str: &str) {
                 let number_of_bytes = stream.read_to_end(&mut buf).expect("unable to read from stream");
                 count_messages += 1;
 
-                println!("poot");
+                println!("Incoming message read...");
                 if count_messages % 1000 == 0 {
                     println!("{} messages processed. Current: src_addr={},num_bytes={}", count_messages, src_addr, number_of_bytes);
 

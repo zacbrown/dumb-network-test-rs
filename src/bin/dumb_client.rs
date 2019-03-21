@@ -39,20 +39,20 @@ fn main() {
                 .case_insensitive(true),
         )
         .arg(
-            clap::Arg::with_name("perf")
-                .long("perf")
-                .value_name("PERFORMANCE")
+            clap::Arg::with_name("stress")
+                .short("S")
                 .required(false)
-                .case_insensitive(true)
+                .case_insensitive(false)
         )
         .get_matches();
 
     let protocol = value_t!(matches.value_of("protocol"), Protocol).unwrap_or_else(|e| e.exit());
     let client_address_str = matches.value_of("client-address").unwrap();
     let server_address_str = matches.value_of("server-address").unwrap();
-    let is_perf_scenario = matches.value_of("perf").is_some();
+    let is_perf_scenario = matches.is_present("stress");
 
     let (event_count, sleep_duration_ms) = if is_perf_scenario {
+        println!("This is a perf/stress scenario.");
         (1_000_000, 0)
     } else {
         (10, 1000)
