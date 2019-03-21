@@ -11,7 +11,7 @@ arg_enum! {
 }
 
 fn main() {
-    let matches = clap::App::new("dumb_server")
+    let matches = clap::App::new("dumb_client")
         .version("0.1.0")
         .arg(
             clap::Arg::with_name("protocol")
@@ -76,7 +76,7 @@ fn start_tcp_client(_client_address_str: &str, server_address_str: &str) {
     let server_address: SocketAddr = server_address_str.parse().expect("invalid socket address");
     let mut stream = TcpStream::connect(server_address).expect("couldn't bind to address");
 
-    println!("Starting UDP client with address {}, connected to {} ...",
+    println!("Starting TCP client with address {}, connected to {} ...",
              stream.local_addr().expect("couldn't get local address"),
              server_address_str);
 
@@ -89,7 +89,7 @@ fn start_tcp_client(_client_address_str: &str, server_address_str: &str) {
 
         if count_messages % 1000 == 0 {
             println!("{} messages sent.", count_messages);
-            std::thread::sleep_ms(5000);
+            std::thread::sleep_ms(1000);
         }
     }
 }
