@@ -53,7 +53,7 @@ fn main() {
 
     let (event_count, sleep_duration_ms) = if is_perf_scenario {
         println!("This is a perf/stress scenario.");
-        (1_000_000, 0)
+        (1_000_000_000, 0)
     } else {
         (10, 1000)
     };
